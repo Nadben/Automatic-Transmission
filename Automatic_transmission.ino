@@ -62,7 +62,7 @@ void loop() {
            cntRpmWheel++;
          }
       }
-     // pour enregistrer le dernier état
+      //Pour enregistrer le dernier état
       lastState = statePin8;
       lastState1 = statePin9;
       lastState &= maskPB0;
@@ -72,15 +72,17 @@ void loop() {
   
   //RPM measurement + reset of all the counters 
   rpmFlyWheel = (cntRpmFlyWheel*60000)/(numTeeth*18);
-  //rpmRoue = (cntRpmRoue*60000)/(numTeeth*18);
+  rpmWheel = (cntRpmWheel*60000)/(numTeeth*18);
   cntRpmFlyWheel = 0;
-  //cntRpmRoue = 0;
-  compaCounter = 0;
+  cntRpmWheel = 0;
+  
 
 
   //Ce qu'il reste à faire c'est l'algorithme des brackets
-  //Serial.print("rpm = ");
-  //Serial.println(rpmFlyWheel);
-
+  Serial.print("rpm Wheel = ");
+  Serial.println(rpmFlyWheel);
+  Serial.print("rpm Roue = ");
+  Serial.println(rpmWheel);
+  compaCounter = 0;
 
 }
