@@ -7,7 +7,7 @@ byte lastState;
 byte lastState1;
 
 //Compteurs
-int cntRpmFlyWheel = 0; //remember can't do arithmetics with unsigned on arduino for some reason could use double ?
+int cntRpmFlyWheel = 0; //remember can't do arithmetics with unsigned on arduino for some reason 
 int cntRpmWheel = 0;
 //variable volatile pour récupérer le compteur plus tard dans la loop
 volatile unsigned int compaCounter = 0;
@@ -45,8 +45,23 @@ ISR(TIMER1_COMPA_vect){
 }
 
 void loop() {
-//Boucle while qui mesure le nombre de dents qui passe devant le capteur en 20 ms
-//la boucle while fait 1 tour en ~ 25 Micro secondes 
+ 
+ /*
+ ce qu'il reste à faire : 
+ 1- calculer le taux d'accélération / ou déccel
+ 2- mode manuel/automatique
+ 3- changer les vitesses
+ 4- tester le calcul de rpm
+ */
+ 
+ /*Section 1 : Mode Man/Auto*/
+ //
+ //À compléter
+ //
+ 
+ /*Section 2 : Calcul rpm roue + fly wheel */
+ //Boucle while qui mesure le nombre de dents qui passe devant le capteur en 20 ms
+ //la boucle while fait 1 tour en ~ 25 Micro secondes 
 
   while(compaCounter < 1){
     
@@ -71,8 +86,12 @@ void loop() {
   }
   
   //RPM measurement + reset of all the counters 
+  /*Section 3 : Calcul du taux d'accélération*/
   rpmFlyWheel = (cntRpmFlyWheel*60000)/(numTeeth*18);
   rpmWheel = (cntRpmWheel*60000)/(numTeeth*18);
+  
+  
+ 
   cntRpmFlyWheel = 0;
   cntRpmWheel = 0;
   
@@ -83,6 +102,15 @@ void loop() {
   Serial.println(rpmFlyWheel);
   Serial.print("rpm Roue = ");
   Serial.println(rpmWheel);
-  compaCounter = 0;
+  compaCounter = 0;//Always at the end of the program
 
+  
+  /*Section 4 : Changement des vitesses*/
+ 
+ 
 }
+
+
+
+
+
