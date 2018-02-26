@@ -56,7 +56,7 @@ void loop() {
  
  /*Section 1 : Mode Man/Auto*/
  //
- //À compléter
+ //À compléter maybe inside the setup just before a run 
  //
  
  /*Section 2 : Calcul rpm roue + fly wheel */
@@ -90,6 +90,21 @@ void loop() {
   rpmFlyWheel = (cntRpmFlyWheel*60000)/(numTeeth*18);
   rpmWheel = (cntRpmWheel*60000)/(numTeeth*18);
   
+ 
+  /*
+  To calculate the rate of acceleration, we need the speed of the vehicle and the time (so we need another timer)
+  delta V2(t2) - delta V1(t1)/(t2-t1)
+  if the delta is negative then we are deccelerating, if the delta is positive, then we are accelerating.
+  
+  Instead of calculating a delta for the speed, we could use an acceleromter hardware setup probably takes less code
+  meaning less time.
+  
+  to check port manipulation for analog reading
+  
+  @Input : Accel value
+  @output : void
+  
+  */
   
  
   cntRpmFlyWheel = 0;
@@ -106,6 +121,31 @@ void loop() {
 
   
   /*Section 4 : Changement des vitesses*/
+  /*
+  //en acceleration
+  if(accelValue > 0 && rpmFlyWheel > 4500){
+   //jupshfift pour descendre mon rpm qui reste entre 4000 et 4500
+   PORTB = 0b00000100;//upshift
+   delay(70);//delay 50 ms peut ne pas marcher a 50 ms
+   PORTB = 0b00000000;
+  }
+  
+  if(accelValue > 0 && rpmFlyWheel < 4000){
+   PORTB = 0b00001000;//downshift
+   delay(50);//delay 50 ms peut ne pas marcher a 50 ms
+   PORTB = 0b00000000;
+  }
+  
+  //en decceleration
+  if(acceleration <= 0 && rpmFlyWheel != targetRpm){
+   //si l'accel est nulle alors on shift en fonction du rpm target du tableau excel
+   //
+   //a developper
+   //
+  }
+  
+  
+  */
  
  
 }
