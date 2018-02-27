@@ -6,6 +6,7 @@ byte maskPB1 = 0b00000010; //masque pour la pin digital 9 (PB1)
 byte lastState;
 byte lastState1;
 
+
 //Compteurs
 int cntRpmFlyWheel = 0; //remember can't do arithmetics with unsigned on arduino for some reason 
 int cntRpmWheel = 0;
@@ -17,6 +18,10 @@ int numTeeth = 32;
 int rpmWheel = 0;
 unsigned int oldTime; //remember can't do arithmetics with unsigned on arduino for some reason
 unsigned int currenTime;
+
+//time constant/variable
+int timeConst = 18;
+int converTime = 60000;
 
 //So i want to count the number of times the signal goes from high to low in a fixed period of time....
 //it's TIME to use the timer register (badumtss)
@@ -60,7 +65,7 @@ void loop() {
  //
  
  /*Section 2 : Calcul rpm roue + fly wheel */
- //Boucle while qui mesure le nombre de dents qui passe devant le capteur en 20 ms
+ //Boucle while qui mesure le nombre de dents qui passe devant le capteur en 18 ms
  //la boucle while fait 1 tour en ~ 25 Micro secondes 
 
   while(compaCounter < 1){
@@ -87,8 +92,8 @@ void loop() {
   
   //RPM measurement + reset of all the counters 
   /*Section 3 : Calcul du taux d'accélération*/
-  rpmFlyWheel = (cntRpmFlyWheel*60000)/(numTeeth*18);
-  rpmWheel = (cntRpmWheel*60000)/(numTeeth*18);
+  rpmFlyWheel = (cntRpmFlyWheel*converTime)/(numTeeth*timeConst);
+  rpmWheel = (cntRpmWheel*converTime)/(numTeeth*timeConst);
   
  
   /*
