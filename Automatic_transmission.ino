@@ -72,15 +72,18 @@ void loop() {
     
       statePin8 = PINB;
       statePin9 = PINB;
-      statePin8 &= maskPB0; //AND operation to keep only the bit of PB0
-      statePin9 &= maskPB1; //AND operation to keep only the bit of PB0
+      //statePin8 &= maskPB0; //AND operation to keep only the bit of PB0
+      //statePin9 &= maskPB1; //AND operation to keep only the bit of PB0
       if(statePin8 != lastState){ //(statePB8 != lastState && statePB9 != lastState)
       //Quand une dent passe devant le capteur, celui-ci envoi un 0 logique (transition High to Low)
-        if(statePin8 == LOW){
+        if( (statePin8 &= maskPB0) == LOW){
           cntRpmFlyWheel++;
-        }if(statePin9 == LOW){ // pas sure de la transition pour ce capteur (high to low ou inverse)
+        }
+      }
+      if(statePin9 != lastState1){
+        if( (statePin9 &= maskPB1) == LOW){ // pas sure de la transition pour ce capteur (high to low ou inverse)
            cntRpmWheel++;
-         }
+        }
       }
       //Pour enregistrer le dernier état
       lastState = statePin8;
