@@ -3,18 +3,21 @@ byte statePin8;
 byte statePin9; // ou 12
 byte maskPB0 = 0b00000001; //masque pour la pin digital 8 (PB0) (LSB on PINx register)
 byte maskPB1 = 0b00000010; //masque pour la pin digital 9 (PB1)
-byte lastState;
+byte lastState; //should be boolean i suppose
 byte lastState1;
 
 
 //Compteurs
 int cntRpmFlyWheel = 0; //remember can't do arithmetics with unsigned on arduino for some reason 
 int cntRpmWheel = 0;
+int counterShift = 0;
+int counterUpShift = 0;
+int counterDownShift = 0;
 //variable volatile pour récupérer le compteur plus tard dans la loop
 volatile unsigned int compaCounter = 0;
 
 int rpmFlyWheel = 0;
-int numTeeth = 32;
+int numTeeth = 35;
 int rpmWheel = 0;
 unsigned int oldTime; //remember can't do arithmetics with unsigned on arduino for some reason
 unsigned int currenTime;
@@ -33,7 +36,7 @@ void setup() {
  TCCR1A = 0;//disable all the registers in TCCR1 A and B
  TCCR1B = 0;
  TCNT1 = 0;//setup counter value
- //Set compare match register for 8 hz increments (can be whatever frequency we want)(55hz)
+ //Set compare match register for 55 hz increments (can be whatever frequency we want)
  OCR1A = 1249;//(16*10^6) / (4*64) - 1 (formule pour calculer la valeur du match)
  //CTC enabled
  TCCR1B |= (1<<WGM12);
@@ -42,12 +45,28 @@ void setup() {
  //setup timer ovf 
  TIMSK1 |= (1<<OCIE1A);
  sei();//start interrupts
+ 
+ //Downshift 11 times
+ while(counterShift <= 11){
+   PORTB = 0b00001000;//downshift
+   delay(50);//delay 50 ms peut ne pas marcher a 50 ms
+   PORTB = 0b00000000;
+   counterShift++;
+ }
 }
 
-//sous-routine qui s'execute a chaque fois quil y a un match (à chaque 250 ms selon le setup)
+//sous-routine qui s'execute a chaque fois quil y a un match (à chaque 18 ms selon le setup)
 ISR(TIMER1_COMPA_vect){
   compaCounter++; 
 }
+
+
+void manualAuto(){
+ 
+ 
+ 
+}
+
 
 void loop() {
  
@@ -61,16 +80,24 @@ void loop() {
  
  /*Section 1 : Mode Man/Auto*/
  //
- //À compléter maybe inside the setup just before a run 
- //
+ //if(pb4){
+ //start = millis();
+ //manualAuto();
+ // 
+ // 
+ //  
+ // 
+ // 
+ //}
+ //}
+ 
  
  /*Section 2 : Calcul rpm roue + fly wheel */
  //Boucle while qui mesure le nombre de dents qui passe devant le capteur en 18 ms
  //la boucle while fait 1 tour en ~ 25 Micro secondes 
 
   while(compaCounter < 1){
-    
-      statePin8 = PINB;
+      statePin8 = PINB; //should be in setup 
       statePin9 = PINB;
       //statePin8 &= maskPB0; //AND operation to keep only the bit of PB0
       //statePin9 &= maskPB1; //AND operation to keep only the bit of PB0
@@ -133,15 +160,17 @@ void loop() {
   //en acceleration
   if(accelValue > 0 && rpmFlyWheel > 4500){
    //jupshfift pour descendre mon rpm qui reste entre 4000 et 4500
-   PORTB = 0b00000100;//upshift
+   PORTB = 0b00000100;//upshift (1<<3)
    delay(70);//delay 50 ms peut ne pas marcher a 50 ms
    PORTB = 0b00000000;
+   counterUpShift++;
   }
   
   if(accelValue > 0 && rpmFlyWheel < 4000){
    PORTB = 0b00001000;//downshift
    delay(50);//delay 50 ms peut ne pas marcher a 50 ms
    PORTB = 0b00000000;
+   counterDownShift++;
   }
   
   //en decceleration
