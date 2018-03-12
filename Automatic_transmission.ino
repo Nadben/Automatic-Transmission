@@ -6,7 +6,7 @@ byte statePin9; // ou 12
 byte maskPB0 = 0b00000001; //masque pour la pin digital 8 (PB0) (LSB on PINx register)
 byte maskPB1 = 0b00000010; //masque pour la pin digital 9 (PB1)
 byte maskpd4 = 0b00010000;
-byte maskpb5 = 0b00100000;
+byte maskpd5 = 0b00100000;
 
 //state watcher
 statePin8 = PINB; //should be in setup 
@@ -24,11 +24,11 @@ boolean pb4;
 //Compteurs
 int cntRpmFlyWheel = 0; //remember can't do arithmetics with unsigned on arduino for some reason 
 int cntRpmWheel = 0;
-int counterShift = 0;
-int counterUpShift = 0;
-int counterDownShift = 0;
+
+
 //variable volatile pour récupérer le compteur plus tard dans la loop
 volatile unsigned int compaCounter = 0;
+volatile int counterShift = 0;
 
 int rpmFlyWheel = 0;
 int numTeeth = 35;
@@ -83,13 +83,13 @@ void manualMode(){
    PORTB = 0b00000100;//upshift (1<<3)
    delay(70);//delay 50 ms peut ne pas marcher a 50 ms
    PORTB = 0b00000000;
-   //counterUpShift++;
+   counterShift++;
   }
   if(!pb3 && pb4){
    PORTB = 0b00001000;//downshift
    delay(70);//delay 50 ms peut ne pas marcher a 50 ms
    PORTB = 0b00000000;
-   //counterDownShift++;
+   counterShift--;
   }
  }
  //ferme led verte ouvre led jaune pour indiquer mode auto
