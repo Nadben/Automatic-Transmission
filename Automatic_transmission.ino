@@ -1,10 +1,24 @@
+
+
 //Variables
 byte statePin8;
 byte statePin9; // ou 12
 byte maskPB0 = 0b00000001; //masque pour la pin digital 8 (PB0) (LSB on PINx register)
 byte maskPB1 = 0b00000010; //masque pour la pin digital 9 (PB1)
+byte maskpd4 = 0b00010000;
+byte maskpb5 = 0b00100000;
+
+//state watcher
+statePin8 = PINB; //should be in setup 
+statePin9 = PINB;
+
 byte lastState; //should be boolean i suppose
 byte lastState1;
+
+boolean pb3;
+boolean pb4;
+
+// definission
 
 
 //Compteurs
@@ -45,14 +59,15 @@ void setup() {
  //setup timer ovf 
  TIMSK1 |= (1<<OCIE1A);
  sei();//start interrupts
- 
+ counterShift = 11;
  //Downshift 11 times
- while(counterShift <= 11){
+ while(counterShift > 1){
    PORTB = 0b00001000;//downshift
-   delay(50);//delay 50 ms peut ne pas marcher a 50 ms
+   delay(150);//delay 50 ms peut ne pas marcher a 50 ms
    PORTB = 0b00000000;
-   counterShift++;
+   counterShift--;
  }
+ counterShift = 1; 
 }
 
 //sous-routine qui s'execute a chaque fois quil y a un match (à chaque 18 ms selon le setup)
@@ -60,13 +75,25 @@ ISR(TIMER1_COMPA_vect){
   compaCounter++; 
 }
 
-
-void manualAuto(){
- 
- 
- 
+void manualMode(){
+ while(1){//boucle qui ne sarrete jaaaamaaaaiiiisssss
+  //ouvre led verte pour indiquer mode man
+  //verifier les derniers etats pour pas toujours entrer dans la condition si on garde le bouton enfoncer
+  if(pb3 && !pb4){
+   PORTB = 0b00000100;//upshift (1<<3)
+   delay(70);//delay 50 ms peut ne pas marcher a 50 ms
+   PORTB = 0b00000000;
+   //counterUpShift++;
+  }
+  if(!pb3 && pb4){
+   PORTB = 0b00001000;//downshift
+   delay(70);//delay 50 ms peut ne pas marcher a 50 ms
+   PORTB = 0b00000000;
+   //counterDownShift++;
+  }
+ }
+ //ferme led verte ouvre led jaune pour indiquer mode auto
 }
-
 
 void loop() {
  
@@ -79,15 +106,11 @@ void loop() {
  */
  
  /*Section 1 : Mode Man/Auto*/
- //
- //if(pb4){
- //start = millis();
- //manualAuto();
- // 
- // 
- //  
- // 
- // 
+ //check the states of pin 3 and 4 
+ //pb3 = PIND & maskpd4;
+ //pb4 = PIND & maskpd5;
+ //if(pb4 && pb3){
+ // manualMode();
  //}
  //}
  
@@ -95,13 +118,10 @@ void loop() {
  /*Section 2 : Calcul rpm roue + fly wheel */
  //Boucle while qui mesure le nombre de dents qui passe devant le capteur en 18 ms
  //la boucle while fait 1 tour en ~ 25 Micro secondes 
-
-  while(compaCounter < 1){
-      statePin8 = PINB; //should be in setup 
-      statePin9 = PINB;
-      //statePin8 &= maskPB0; //AND operation to keep only the bit of PB0
-      //statePin9 &= maskPB1; //AND operation to keep only the bit of PB0
-      if(statePin8 != lastState){ //(statePB8 != lastState && statePB9 != lastState)
+  compaCounter = 0;//Always before the while loop
+  while(compaCounter < 3){
+ 
+      if(statePin8 != lastState){
       //Quand une dent passe devant le capteur, celui-ci envoi un 0 logique (transition High to Low)
         if( (statePin8 &= maskPB0) == LOW){
           cntRpmFlyWheel++;
@@ -136,8 +156,17 @@ void loop() {
   
   to check port manipulation for analog reading
   
-  @Input : Accel value
+  @Input : array of speed
   @output : void
+  
+  steps : 
+  1- initialise array
+  2- input speed (5 values)
+  3- check each values if they go lower
+  4- 
+  
+  
+  
   
   */
   
@@ -152,7 +181,7 @@ void loop() {
   Serial.println(rpmFlyWheel);
   Serial.print("rpm Roue = ");
   Serial.println(rpmWheel);
-  compaCounter = 0;//Always at the end of the program
+  
 
   
   /*Section 4 : Changement des vitesses*/
